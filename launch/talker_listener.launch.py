@@ -8,7 +8,7 @@ def generate_launch_description():
 
     network_info = launch_ros.actions.Node(
         package='net_bytes',
-        executable='calendar',
+        executable='network_info',
         )
     listener = launch_ros.actions.Node(
         package='net_bytes',

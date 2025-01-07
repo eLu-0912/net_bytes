@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
         'talker = net_bytes.network_info:main',
+        'listener = net_bytes.listener:main'
         ],
     },
 )    
