@@ -1,6 +1,6 @@
 # net_bytes
 ![test](https://github.com/eLu-0912/net_bytes/actions/workflows/test.yml/badge.svg)  
-- これはROS2のパッケージです
+- これはROS2のパッケージである
 - システムのネットワークインターフェースにおける送受信バイト数をトピックから出力する
 ## ノード概要
 * network_info  
