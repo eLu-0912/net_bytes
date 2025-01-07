@@ -27,12 +27,12 @@ jobs:
     - name: Source ROS 2 environment
       run: |
         # Ensure that ROS 2 is sourced so that ROS 2 commands are available
-        source /opt/ros/humble/setup.bash
+        ./opt/ros/humble/setup.bash
 
     - name: Build and run tests
       run: |
         # Build the workspace and run tests
         cd /ros2_ws
         colcon build
-        source /ros2_ws/install/setup.bash
+        ./ros2_ws/install/setup.bash
         bash -xv /ros2_ws/src/net_bytes/test/test.bash
