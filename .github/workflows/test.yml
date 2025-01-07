@@ -1,38 +1,62 @@
-name: test
-on: push
+name: ROS2 Node Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    container: ryuichiueda/ubuntu22.04-ros2:latest
+  build:
+    runs-on: ubuntu-22.04  # ROS2が動作するUbuntuのバージョンに変更可能
+
     steps:
-    - uses: actions/checkout@v2
+    # 1. Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Set up workspace
-      run: |
-        # Create necessary directories and fix permissions
-        sudo mkdir -p /ros2_ws/src/net_bytes
-        sudo chown -R $(whoami) /ros2_ws
+    # 2. Set up ROS2 environment
+    - name: Set up ROS 2
+      uses: ros-tooling/setup-ros@v0.2
+      with:
+        ros-distro: foxy  # 使用するROS2のディストリビューション（foxy, humbleなど）
 
-    - name: Sync files with rsync
+    # 3. Set up workspace
+    - name: Set up ROS2 workspace
       run: |
-        # Sync files from the current directory to the target ROS workspace
-        rsync -av ./ /ros2_ws/src/net_bytes/
+        mkdir -p ~/ros2_ws/src
+        cp -r ./* ~/ros2_ws/src/  # 必要に応じて適切な方法でコピーします
 
-    - name: Install dependencies
+    # 4. Build the workspace
+    - name: Build workspace
       run: |
-        # Update rosdep and install dependencies
-        rosdep update
-        rosdep install -i --from-paths /ros2_ws/src --rosdistro humble -y
-
-    - name: Source ROS 2 environment
-      run: |
-        # Ensure that ROS 2 is sourced so that ROS 2 commands are available
-        ./opt/ros/humble/setup.bash
-
-    - name: Build and run tests
-      run: |
-        # Build the workspace and run tests
-        cd /ros2_ws
+        cd ~/ros2_ws
         colcon build
-        ./ros2_ws/install/setup.bash
-        bash -xv /ros2_ws/src/net_bytes/test/test.bash
+
+    # 5. Source the setup file
+    - name: Source ROS 2 setup
+      run: |
+        source ~/ros2_ws/install/setup.bash
+
+    # 6. Run the node and collect logs
+    - name: Run NetworkInfoTalker node
+      run: |
+        timeout 10 ros2 run <your_package_name> <your_node_executable> > /tmp/network_info.log
+
+    # 7. Check logs for expected output
+    - name: Check network information in logs
+      run: |
+        cat /tmp/network_info.log | grep -E '(送信バイト|受信バイト)'
+
+    # 8. Exit with success if logs are found
+    - name: Check for success
+      run: |
+        if ! grep -qE '(送信バイト|受信バイト)' /tmp/network_info.log; then
+          echo "Network information not found in logs"
+          exit 1
+        else
+          echo "Test passed: Network information found"
+        fi
+
