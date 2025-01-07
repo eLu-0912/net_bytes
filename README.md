@@ -18,7 +18,7 @@
 `ros2 run net_bytes listener`  
 - 実行方法2  
 launchファイルを使用して1つの端末で実行  
-`ros2 launch net_bytes talk_listen.launch.py`  
+`ros2 launch net_bytes talker_listener.launch.py`  
 ## 動作環境
 ### 必要なソフトウェア
 * python  
