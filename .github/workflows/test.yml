@@ -6,12 +6,26 @@ jobs:
     container: ryuichiueda/ubuntu22.04-ros2:latest
     steps:
     - uses: actions/checkout@v2
-    - name: build and test
+
+    - name: Set up workspace
       run: |
+        # Create necessary directories and fix permissions
         sudo mkdir -p /ros2_ws/src/net_bytes
         sudo chown -R $(whoami) /ros2_ws
-        cd /ros2_ws/src/net_bytes
-        rsync -av ./ /root/ros2_ws/src/net_bytes
+
+    - name: Sync files with rsync
+      run: |
+        # Sync files from the current directory to the target ROS workspace
+        rsync -av ./ /ros2_ws/src/net_bytes/
+
+    - name: Install dependencies
+      run: |
+        # Update rosdep and install dependencies
         rosdep update
-        rosdep install -i --from-path src --rosdistro humble -y
-        bash -xv ./src/net_bytes/test/test.bash /root
+        rosdep install -i --from-paths /ros2_ws/src --rosdistro humble -y
+
+    - name: Run tests
+      run: |
+        # Run the test script
+        bash -xv /ros2_ws/src/net_bytes/test/test.bash
+
