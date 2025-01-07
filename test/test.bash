@@ -9,4 +9,5 @@ cd $dir/ros2_ws
 colcon build
 source $dir/.bashrc
 
-timeout 10 ros2 launch net_bytes talker_listener.launch.py > /tmp/net_bytes.log 
+timeout 10 ros2 launch net_bytes talker_listener.launch.py > /tmp/net_bytes.log
+cat /tmp/network_info.log | grep -E
