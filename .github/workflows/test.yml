@@ -1,62 +1,13 @@
-name: ROS2 Node Test
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
+name: test
+on: push
 jobs:
-  build:
-    runs-on: ubuntu-22.04  # ROS2が動作するUbuntuのバージョンに変更可能
-
+  test:
+    runs-on: ubuntu-22.04
+    container: ryuichiueda/ubuntu22.04-ros2:latest
     steps:
-    # 1. Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    # 2. Set up ROS2 environment
-    - name: Set up ROS 2
-      uses: ros-tooling/setup-ros@v0.2
-      with:
-        ros-distro: foxy  # 使用するROS2のディストリビューション（foxy, humbleなど）
-
-    # 3. Set up workspace
-    - name: Set up ROS2 workspace
-      run: |
-        mkdir -p ~/ros2_ws/src
-        cp -r ./* ~/ros2_ws/src/  # 必要に応じて適切な方法でコピーします
-
-    # 4. Build the workspace
-    - name: Build workspace
-      run: |
-        cd ~/ros2_ws
-        colcon build
-
-    # 5. Source the setup file
-    - name: Source ROS 2 setup
-      run: |
-        source ~/ros2_ws/install/setup.bash
-
-    # 6. Run the node and collect logs
-    - name: Run NetworkInfoTalker node
-      run: |
-        timeout 10 ros2 run <your_package_name> <your_node_executable> > /tmp/network_info.log
-
-    # 7. Check logs for expected output
-    - name: Check network information in logs
-      run: |
-        cat /tmp/network_info.log | grep -E '(送信バイト|受信バイト)'
-
-    # 8. Exit with success if logs are found
-    - name: Check for success
-      run: |
-        if ! grep -qE '(送信バイト|受信バイト)' /tmp/network_info.log; then
-          echo "Network information not found in logs"
-          exit 1
-        else
-          echo "Test passed: Network information found"
-        fi
-
+      - uses: actions/checkout@v2
+      - name: build and test
+        run: |
+          rsync -av ./ /root/ros2_ws/src/net_bytes/
+          cd /root/ros2_ws
+          bash -xv ./src/net_bytes/test/test.bash /root
