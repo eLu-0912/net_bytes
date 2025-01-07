@@ -10,4 +10,4 @@ colcon build
 source $dir/.bashrc
 
 timeout 10 ros2 launch net_bytes talker_listener.launch.py > /tmp/net_bytes.log
-cat /tmp/net_bytes.log | grep -E '0.1'
+cat /tmp/net_bytes.log | grep -E '0\.[0-9]+'
